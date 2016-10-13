@@ -32,9 +32,10 @@ typedef struct node_s node_t;
 
 int
 main(int argc, char *argv[]){
-	node_t board[4];
-	int_scoreboard(board);
-	printf("%d",board[0].priority);
+	int i;
+	for (i=0; i<0; i++){
+		printf("yes, I'm excutable");
+	}
 
 }
 

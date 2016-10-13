@@ -28,11 +28,13 @@ main(int argc, char *argv[]){
 	oldnode=node;
 	node=(node_t*)malloc(sizeof(*node));
 	node->priority=5;
-	heap_push(&h, oldnode);
+	heap_push(&h, node);
 	node=(node_t*)malloc(sizeof(*node));
 	node->priority=10;
 	heap_push(&h, node);
 	
+
+	printf("%d", h.heaparr[0]->priority);
 	heap_display(&h);
 	return 0;
 	
