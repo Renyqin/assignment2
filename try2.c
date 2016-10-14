@@ -32,9 +32,9 @@ typedef struct node_s node_t;
 
 int
 main(int argc, char *argv[]){
-	int i;
-	for (i=0; i<0; i++){
-		printf("yes, I'm excutable");
+	int a=1,b=1,c=1;
+	if (a==b==c){
+		printf("Yes, we are equal");
 	}
 
 }
