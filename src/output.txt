@@ -1,0 +1,28 @@
+MaxDepth = 0
+Generated = 0
+Expanded = 117
+Time = 0.02 seconds
+Expanded/Second = 5050
+max_tile = 64
+Score = 736
+
+MaxDepth = 0
+Generated = 0
+Expanded = 149
+Time = 0.03 seconds
+Expanded/Second = 4935
+max_tile = 128
+Score = 1164
+
+MaxDepth = 0
+Generated = 0
+Expanded = 100
+Time = 0.02 seconds
+Expanded/Second = 4963
+max_tile = 64
+Score = 608
+
+
+1
+2
+3

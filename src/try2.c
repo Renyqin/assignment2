@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 typedef enum moves{
 	left=0,
@@ -32,11 +33,18 @@ typedef struct node_s node_t;
 
 int
 main(int argc, char *argv[]){
-	int a=1,b=1,c=1;
-	if (a==b==c){
-		printf("Yes, we are equal");
+	clock_t start,end;
+	int t;
+	int i,j=0;
+	start=time(NULL);//predefined  function in c
+	for (i=0; i<100000000; i++){
+		j++;
 	}
-
+	//after the user defined function does its work
+	end=time(NULL);
+	t=(end-start);
+	
+	printf("%d", t);
 }
 
 

@@ -13,18 +13,6 @@
 struct heap h;
 
 
-void copy_board(uint8_t board1[SIZE][SIZE], uint8_t board2[SIZE][SIZE]);
-node_t *int_node(node_t *node, uint8_t board[SIZE][SIZE],uint32_t score);
-int array_size(int max_depth);
-void four_direction(node_t *node, uint32_t scrboard[SIZE]);
-node_t *new_node(node_t *newnode, node_t *node, uint8_t board[SIZE][SIZE], uint32_t score, int i);
-void int_scoreboard(uint32_t scrboard[SIZE]);
-void cmp_put_scoreboard(node_t *node, uint32_t scrboard[SIZE]);
-int array_size(int max_depth);
-void copy_board(uint8_t board1[SIZE][SIZE], uint8_t board2[SIZE][SIZE]);
-int compare_board(uint8_t board1[SIZE][SIZE], uint8_t board2[SIZE][SIZE]);
-int decision_making(uint32_t scrboard[]);
-void free_array(node_t **nodeArr, int size);
 
 //debug function
 void scoreboard_print(uint32_t scrboard[]);
@@ -40,13 +28,17 @@ void initialize_ai(){
  */
  
 
-move_t get_next_move( uint8_t board[SIZE][SIZE], int max_depth, propagation_t propagation, uint32_t score ){
+move_t get_next_move( uint8_t board[SIZE][SIZE], int max_depth, propagation_t propagation, uint32_t score, uint32_t *generated, uint32_t *expanded){
 	node_t *node;
 	move_t best_action;    //rand() % 4;
 	uint32_t scrboard[SIZE];
+	uint32_t scrboardavg[SIZE];
+	uint32_t avgboardnum[SIZE];
 
 	
 	int_scoreboard(scrboard);
+	int_scoreboard(scrboardavg);
+	int_scoreboard(avgboardnum);
 	
 	node=(node_t*)malloc(sizeof(*node));
 	assert(node!=NULL);
@@ -56,24 +48,25 @@ move_t get_next_move( uint8_t board[SIZE][SIZE], int max_depth, propagation_t pr
 	
 	//if the first node exit, the heap not empty
 	while (h.count>0){  
-		//printf("%d\n",h.count);
+
 		//heap_display(&h);
 		node=h.heaparr[0];
-		
+		(*expanded)+=1;
 		//delete the first node in heap
 		heap_delete(&h); 
 		
 		if (node->depth<max_depth){
-			four_direction(node, scrboard);
+			four_direction(node, scrboard, scrboardavg, avgboardnum, generated);
 		}
 		
 	}
-	//printf("nodenum: %d",dltIndex);
-	//scoreboard_print(scrboard);
 	free(node);
 	//scoreboard_print(scrboard);
-	best_action=decision_making(scrboard);
-	//printf("%d\n",best_action);
+	if (propagation==max){
+		best_action=decision_making(scrboard);
+	}else{
+		best_action=avg_decision_making(scrboardavg,avgboardnum);
+	}
 
 	return best_action;
 }
@@ -81,7 +74,7 @@ move_t get_next_move( uint8_t board[SIZE][SIZE], int max_depth, propagation_t pr
 
 
 void
-four_direction(node_t *node, uint32_t scrboard[SIZE]){
+four_direction(node_t *node, uint32_t scrboard[SIZE], uint32_t scrboardavg[SIZE],uint32_t avgboardnum[SIZE], uint32_t *generated){
 	int i;
 	uint32_t newscore=node->priority;
 	node_t *oldnode;
@@ -108,9 +101,12 @@ four_direction(node_t *node, uint32_t scrboard[SIZE]){
 		}
 		
 		newnode=new_node(newnode, node, newboard, newscore, i);
+		(*generated)+=1;
 		
 		if (!compare_board(newnode->board, node->board)){
 			cmp_put_scoreboard(newnode, scrboard);
+			put_avg_scoreboard(newnode, scrboardavg, avgboardnum);
+			
 			//scoreboard_print(scrboard);
 			heap_push(&h, newnode);
 		}else{
@@ -174,6 +170,14 @@ cmp_put_scoreboard(node_t *node, uint32_t scrboard[SIZE]){
 	}
 }
 
+void
+put_avg_scoreboard(node_t *node, uint32_t scrboardavg[SIZE], uint32_t avgboardnum[SIZE]){
+	if (node->move!=4){
+		scrboardavg[node->move]+=node->priority;
+		avgboardnum[node->move]+=1;
+	}
+}
+
 int
 array_size(int max_depth){
 	int i,size;
@@ -206,17 +210,6 @@ compare_board(uint8_t board1[SIZE][SIZE], uint8_t board2[SIZE][SIZE]){
 	return 1;
 }
 
-void
-board_print(uint8_t board[SIZE][SIZE]){
-	int i,j;
-	for (i=0;i<SIZE;i++){
-		for (j=0; j<SIZE; j++){
-			printf("%d,", board[i][j]);//getTile(board,i,j)
-		}
-	}
-	printf("\n");
-}
-
 int
 decision_making(uint32_t scrboard[]){
 	int i,move;
@@ -227,12 +220,34 @@ decision_making(uint32_t scrboard[]){
 			move=i;
 		}
 	}
-	return move;
+	
+	return broke_tie(scrboard,max);
 }
 
-void
-broke_tie(uint32_t scrboard[]){
+int
+avg_decision_making(uint32_t scrboardavg[],uint32_t avgboardnum[]){
+	int i;
+	uint32_t avgboard[SIZE];
 	
+	for (i=0; i<SIZE; i++){
+		avgboard[i]=(double)scrboardavg[i]/(double)avgboardnum[i];
+	}
+	return decision_making(avgboard);
+
+}
+
+int
+broke_tie(uint32_t scrboard[],uint32_t max){
+	int i,j=0;
+	int moveboard[SIZE]={0};
+	
+	for (i=0; i<SIZE; i++){
+		if (scrboard[i]==max){
+			moveboard[j]=i;
+			j++;
+		}
+	}
+	return moveboard[rand()%j];
 }
 
 //debug function
@@ -245,13 +260,17 @@ scoreboard_print(uint32_t scrboard[]){
 }
 
 
-//delete later
-void
-free_array(node_t **nodeArr, int size){
-	int i;
-	for (i=1;i<size;i++){
-		if (nodeArr[i]!=NULL){
-			free(nodeArr[i]);
+uint32_t
+max_tile(uint8_t board[SIZE][SIZE]){
+	int i, j;
+	uint32_t max=0;
+	for (i=0; i<SIZE; i++){
+		for(j=0; j<SIZE; j++){
+			if (getTile(board,i,j)>max){
+				max=getTile(board,i,j);
+			}
 		}
 	}
+	return max;
+
 }
