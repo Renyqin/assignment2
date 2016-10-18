@@ -1,3 +1,11 @@
+/*
+============================================================
+author: Chenqin Zhang
+time: 18/10/2016
+description: assignment2 for algorithms and data structure
+============================================================
+*/
+
 #include <time.h>
 #include <stdlib.h>
 #include <math.h>
