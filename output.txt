@@ -1,0 +1,9 @@
+MaxDepth = 1
+Generated = 1696
+Expanded = 2110
+Time = 0.09 seconds
+Expanded/Second = 24315
+max_tile = 512
+Score = 5448
+
+

@@ -100,15 +100,20 @@ int main(int argc, char *argv[]) {
 	bool ai_run = false;
 	propagation_t propagation=max;
 	bool slow = false;
+	
+	/*variables for generate output file*/
 	FILE *fp;  
 	uint32_t generated=0, expanded=0;
 	clock_t start, end;
 	float timetaken;
-	
 	start=clock();
 	
 	/*output to a file*/
-	fp=fopen("output.txt", "a");
+	fp=fopen("output.txt", "w");
+	if (fp==NULL){
+		perror("Error ");
+		return (-1);
+	}
 
 	/**
 	 * Parsing command line options
@@ -225,6 +230,12 @@ int main(int argc, char *argv[]) {
 	fprintf(fp,"max_tile = %d\n", max_tile(board));
 	fprintf(fp,"Score = %d\n\n\n", score);
 	
+	/*fprintf(fp,"%d\t", max_depth);
+	fprintf(fp,"%.2f\t", timetaken);
+	fprintf(fp,"%d\t", max_tile(board));
+	fprintf(fp,"%d\n", score);*/
+	
+	fclose(fp);
 	
 	setBufferedInput(true);
 

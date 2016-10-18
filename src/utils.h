@@ -24,7 +24,7 @@ typedef enum moves{
 	right=1,
 	up=2,
 	down=3,
-	stay=4
+	stay=4 //stay is for the starting node
 } move_t;
 
 /**
